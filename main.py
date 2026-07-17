@@ -7,7 +7,7 @@ from aiohttp import web
 from config_data import config
 from handlers import routers
 from loader import bot, dp
-# from middlewares.logging_middleware import LoggingMiddleware
+from middlewares.logging_middleware import LoggingMiddleware
 from utils.scheduler import tasks_checker
 from pg_maker import init_db
 
@@ -70,8 +70,8 @@ def main_webhook() -> None:
     for router in routers:
         dp.include_router(router)
 
-    # dp.message.middleware(LoggingMiddleware())
-    # dp.callback_query.middleware(LoggingMiddleware())
+    dp.message.middleware(LoggingMiddleware())
+    dp.callback_query.middleware(LoggingMiddleware())
 
     # Регистрируем функцию, которая будет вызвана при старте бота
     dp.startup.register(on_startup)
@@ -97,26 +97,34 @@ def main_webhook() -> None:
 
 
 async def main():
-    await init_db()
-    await set_commands()
-
-    for router in routers:
-        dp.include_router(router)
-
-    await bot.send_message(
-        chat_id=68086662,
-        text="Бот запущен локально!",
-    )
-
-    await bot.delete_webhook(drop_pending_updates=True)
-
-    scheduler = tasks_checker()
-    scheduler.start()
+    scheduler = None
 
     try:
+        await init_db()
+        await set_commands()
+
+        for router in routers:
+            dp.include_router(router)
+
+        dp.message.middleware(LoggingMiddleware())
+        dp.callback_query.middleware(LoggingMiddleware())
+
+        await bot.delete_webhook(drop_pending_updates=True)
+
+        await bot.send_message(
+            chat_id=68086662,
+            text="Бот запущен локально!",
+        )
+
+        scheduler = tasks_checker()
+        scheduler.start()
+
         await dp.start_polling(bot)
+
     finally:
-        scheduler.shutdown(wait=False)
+        if scheduler and scheduler.running:
+            scheduler.shutdown(wait=False)
+
         await bot.session.close()
 
 

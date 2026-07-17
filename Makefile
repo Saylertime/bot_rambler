@@ -9,13 +9,13 @@ else
 endif
 
 up:
-	docker-compose -f $(COMPOSE_FILE) up
+	docker compose -f $(COMPOSE_FILE) up
 
 build:
-	docker-compose -f $(COMPOSE_FILE) up --build
+	docker compose -f $(COMPOSE_FILE) up --build
 
 down:
-	docker-compose -f $(COMPOSE_FILE) down
+	docker compose -f $(COMPOSE_FILE) down
 
 report:
 	docker exec -it report /bin/sh -c "cat bot.log"

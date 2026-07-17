@@ -17,4 +17,6 @@ BASE_URL = os.getenv('BASE_URL', 'https://ink-media.ru')
 
 DEFAULT_COMMANDS = (
     ("start", "Запустить бота"),
+    ("subscribe", "Подписаться на новости"),
+    ("unsubscribe", "Отписаться от новостей"),
 )

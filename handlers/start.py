@@ -18,7 +18,7 @@ async def start_handler(message: Message):
         title=chat.title or message.from_user.full_name,
     )
 
-    await message.answer("Этот чат подписан на новые тексты sci.rambler.ru.")
+    await message.answer("Этот чат подписан на новые тексты sci.rambler.ru")
 
 
 @router_start.message(Command("subscribe"))
@@ -43,10 +43,10 @@ async def subscribe_handler(message: Message):
         title=chat.title or message.from_user.full_name,
     )
 
-    await message.answer("Этот чат подписан на новые тексты sci.rambler.ru.")
+    await message.answer("Этот чат подписан на новые тексты sci.rambler.ru")
 
 
 @router_start.message(Command("unsubscribe"))
 async def unsubscribe_handler(message: Message):
     await remove_chat(message.chat.id)
-    await message.answer("Рассылка для этого чата отключена.")
+    await message.answer("Рассылка для этого чата отключена")
