@@ -1,0 +1,31 @@
+version: '3.9'
+services:
+  bot_rambler:
+    build:
+      context: .
+    container_name: bot_rambler
+    stop_signal: SIGKILL
+    ports:
+      - 5013:5013
+    networks:
+      - webnet
+    depends_on:
+      - postgres
+    volumes:
+      - .:/telegram_bot
+    environment:
+      - LOCAL_ENV=local
+
+  postgres:
+    image: postgres
+    container_name: postgres_rambler # NAME
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    networks:
+      - webnet
+
+networks:
+  webnet:
