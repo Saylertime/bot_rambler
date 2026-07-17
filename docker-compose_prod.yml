@@ -14,7 +14,7 @@ services:
     volumes:
       - .:/telegram_bot
     environment:
-      - LOCAL_ENV=local
+      - LOCAL_ENV=prod
 
   postgres:
     image: postgres:17
