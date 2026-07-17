@@ -24,7 +24,7 @@ guru:
 	docker exec -it guide_guru /bin/sh -c "cat bot.log"
 
 pg_bash:
-	docker exec -it postgres /bin/sh -c "psql -h postgres -U sayler -d postgres"
+	docker exec -it postgres_rambler /bin/sh -c "psql -h postgres -U sayler -d postgres"
 
 logs_report:
 	docker logs postgres

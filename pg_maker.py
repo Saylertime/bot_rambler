@@ -1,18 +1,15 @@
 from contextlib import asynccontextmanager
-from config_data import config
 import asyncpg
-
-dbname = config.DB_NAME
-user = config.DB_USER
-password = config.DB_PASSWORD
-host = config.DB_HOST
+from config_data import config
 
 
 @asynccontextmanager
 async def db_connection():
-    """Контекстный менеджер для асинхронного подключения к базе данных."""
     conn = await asyncpg.connect(
-        database=dbname, user=user, password=password, host=host
+        database=config.DB_NAME,
+        user=config.DB_USER,
+        password=config.DB_PASSWORD,
+        host=config.DB_HOST,
     )
     try:
         yield conn
@@ -23,27 +20,52 @@ async def db_connection():
 async def init_db():
     async with db_connection() as conn:
         await conn.execute("""
-            CREATE TABLE IF NOT EXISTS users (
-                telegram_id BIGINT PRIMARY KEY
+            CREATE TABLE IF NOT EXISTS chats (
+                chat_id BIGINT PRIMARY KEY,
+                chat_type VARCHAR(20) NOT NULL,
+                title TEXT,
+                is_active BOOLEAN NOT NULL DEFAULT TRUE
             );
         """)
 
 
-async def add_user(telegram_id):
+async def add_chat(
+    chat_id: int,
+    chat_type: str,
+    title: str | None = None,
+):
     async with db_connection() as conn:
-        sql = """
-            INSERT INTO users (telegram_id)
-            VALUES ($1)
-            ON CONFLICT (telegram_id) DO NOTHING;
-        """
-        await conn.execute(sql, telegram_id)
+        await conn.execute("""
+            INSERT INTO chats (
+                chat_id,
+                chat_type,
+                title,
+                is_active
+            )
+            VALUES ($1, $2, $3, TRUE)
+            ON CONFLICT (chat_id)
+            DO UPDATE SET
+                chat_type = EXCLUDED.chat_type,
+                title = EXCLUDED.title,
+                is_active = TRUE;
+        """, chat_id, chat_type, title)
 
 
-async def all_users() -> list[int]:
+async def remove_chat(chat_id: int):
+    async with db_connection() as conn:
+        await conn.execute("""
+            UPDATE chats
+            SET is_active = FALSE
+            WHERE chat_id = $1;
+        """, chat_id)
+
+
+async def all_chats() -> list[int]:
     async with db_connection() as conn:
         rows = await conn.fetch("""
-            SELECT telegram_id
-            FROM users
+            SELECT chat_id
+            FROM chats
+            WHERE is_active = TRUE;
         """)
 
-        return [int(row["telegram_id"]) for row in rows]
+        return [row["chat_id"] for row in rows]

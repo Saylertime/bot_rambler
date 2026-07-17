@@ -35,7 +35,10 @@ async def set_commands():
 async def on_startup() -> None:
     await init_db()
     await set_commands()
-    await bot.set_webhook(f"{BASE_URL}{WEBHOOK_PATH}")
+    await bot.set_webhook(
+        url=f"{BASE_URL}{WEBHOOK_PATH}",
+        allowed_updates=dp.resolve_used_update_types(),
+    )
     await bot.send_message(
         chat_id=68086662,
         text="Бот запущен на вебхуках!",
