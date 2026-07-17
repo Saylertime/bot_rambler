@@ -17,7 +17,7 @@ services:
       - LOCAL_ENV=local
 
   postgres:
-    image: postgres
+    image: postgres:17
     container_name: postgres_rambler # NAME
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
